@@ -2,12 +2,11 @@
 body {
   font-family: 'Be Vietnam Pro', sans-serif;
   --primary-color: #0b74de;
-  --sidebar-max-width: 10vw;
-  --chat-max-width: 90vw;
 }
 
 * {
     box-sizing: border-box;
+    overflow: auto;
 }
 
 header {

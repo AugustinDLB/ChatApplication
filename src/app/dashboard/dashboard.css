@@ -5,9 +5,13 @@ main {
 
 .content {
     display: flex;
+    flex: 1;
 }
 
-.app-users {
-    background-color: cyan;
-    overflow: auto;
+app-users {
+    flex: 0 0 10%;
+}
+
+app-chat {
+    flex: 1;
 }
