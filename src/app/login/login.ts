@@ -1,6 +1,6 @@
 import { Component, input, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { chatService } from "../chat.service";
+import { ChatService } from "../chat.service";
 import { Router } from "@angular/router";
 
 @Component({
@@ -29,7 +29,7 @@ import { Router } from "@angular/router";
   styleUrls: ["login.css"],
 })
 export class Login {
-  chatService     = inject(chatService);
+  chatService     = inject(ChatService);
   router          = inject(Router);
   usernameEntry   = "";
   userList        = input<string[]>();

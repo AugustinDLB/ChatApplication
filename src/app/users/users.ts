@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from "@angular/core";
-import { chatService } from "../chat.service";
+import { ChatService } from "../chat.service";
 import { ActivatedRoute, Router } from "@angular/router";
 
 @Component({
@@ -24,7 +24,7 @@ import { ActivatedRoute, Router } from "@angular/router";
   styleUrls: ["./users.css"],
 })
 export class Users implements OnInit {
-  chatService = inject(chatService);
+  chatService = inject(ChatService);
   router      = inject(Router);
   currentUser = "";
 

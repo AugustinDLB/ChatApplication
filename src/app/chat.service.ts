@@ -1,10 +1,12 @@
-import { Injectable, signal } from "@angular/core";
+import { Injectable, signal, inject } from "@angular/core";
 import { Message } from "./message.model"
+import { HttpClient } from "@angular/common/http"
 
 @Injectable({
   providedIn: "root",
 })
-export class chatService {
+export class ChatService {
+  httpClient     = inject(HttpClient);
   userWeChatWith = signal<string>(""); // The current user we chat with
   currentUser    = signal<string>(""); // The account connected on the app
   usersList      = signal<string[]>([
