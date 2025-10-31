@@ -1,6 +1,8 @@
-* {
-  margin-left: 10px;
-} 
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
 header {
   display: flex;
@@ -8,21 +10,30 @@ header {
   align-items: center;
 }
 
-.results {
-  display: grid;
-  column-gap: 14px;
-  row-gap: 14px;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 400px));
-  margin-top: 50px;
-  justify-content: space-around;
+h2 {
+  border-bottom: 1px solid #ccc;
+  padding-left: 1em;
 }
 
-input {
-  border: solid 1px var(--primary-color);
-  padding: 10px;
-  border-radius: 8px;
-  margin-right: 4px;
-  width: 30%;
+form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  border-top: 1px solid #ccc;
+  margin-top: auto;
+}
+
+.chatDashboard {
+  display : flex;
+  flex-direction : column;
+  flex: 1;
+  min-height: 0; 
+}
+
+.chatContent {
+  overflow-y: auto;
+  min-height: 0;
 }
 
 button {
@@ -38,3 +49,12 @@ button {
   color: black;
   border: solid 1px black;
 }
+
+input {
+  border: solid 1px var(--primary-color);
+  padding: 10px;
+  border-radius: 8px;
+  margin-right: 4px;
+  width: 30%;
+}
+
