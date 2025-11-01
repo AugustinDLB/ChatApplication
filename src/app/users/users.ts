@@ -12,8 +12,10 @@ import { ActivatedRoute, Router } from "@angular/router";
     </header>
     <span class="title"> Users list </span>
 
-    @for (user of chatService.usersList(); track user) { @if (user !=
-    currentUser) {
+    <!-- TODO ici, le service doit te renvoyer la liste de TES contacts (en fonction du current user) -->
+    @for (user of chatService.usersList(); track user) {
+        <!-- TODO donc typiquement: ce if, ca dégage (tu n'es pas dans tes contacts) -->
+        @if (user != currentUser) {
     <div>
       <button class="setUserToTalkButton" (click)="selectUserToChatWith(user)">
         {{ user }}
@@ -30,6 +32,7 @@ export class Users implements OnInit {
 
   constructor(private route: ActivatedRoute) {}
 
+    // TODO ca dégage parce que c'est dans le service
   ngOnInit() {
     // Is it necessary to subscribe here ? The value is not susceptible to change while this route is active
     this.route.params.subscribe((params) => {
@@ -38,6 +41,7 @@ export class Users implements OnInit {
   }
 
   logOut() {
+      // TODO creer une methode logout dans le service (qui vire currentUser, et plus tard qui appelle le serveur)
     this.router.navigate(["/login"]);
   }
   selectUserToChatWith(selectedUser: string) {

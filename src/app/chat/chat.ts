@@ -1,7 +1,7 @@
 import { Component, input, OnInit, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { chatService } from "../chat.service";
+import { ChatService } from "../chat.service";
 import { Message } from "../message.model";
 
 @Component({
@@ -18,6 +18,7 @@ import { Message } from "../message.model";
     <section class = "chatDashboard">
 
       <article class="chatContent">
+      <!-- TODO le service aura besoin de l'id de conversation (ou de user si pas de conv de groupe) pour trouver les messages -->
       @for(message of chatService.prevMessages(); track message.id)
       {
         @if(message.speaker==0)
@@ -47,7 +48,7 @@ import { Message } from "../message.model";
   imports: [FormsModule],
 })
 export class Chat implements OnInit {
-  chatService     = inject(chatService);
+  chatService     = inject(ChatService);
   router          = inject(Router);
   userWeChatWith  = "";
   messageToSend   = "";
@@ -55,6 +56,7 @@ export class Chat implements OnInit {
 
 
   sendMessage() {
+      // TODO meme si ca envoie pas au serveur, faire une fause methode du service
     this.messageToSend = "";
   }
 
