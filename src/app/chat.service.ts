@@ -15,8 +15,9 @@ export class ChatService {
   userWeChatWith = signal<User>({id:-1, name: "", firstName: ""}); // The current user we chat with
 
   private readonly conversationsList = signal<Conversation[]>([
-      // 0 / 1 pour le speaker, pas trop compréhensible, un truc genre isFromMe (true/false) ou sender (user id)
     {id:0 , participants: [0, 1], name: "Test conversation", messages: [ {id:1 , sender:1, content: "Angular, sans aucun doute.", time: new Date(2002, 8, 2)}]},
+    {id:1 , participants: [0, 1], name: "Test conversation2", messages: [ {id:1 , sender:1, content: "Angular, sans aucun doute.", time: new Date(2002, 8, 2)}]},
+
   ])
 
   getConversationsList(): Conversation[] {
