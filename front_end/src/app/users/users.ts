@@ -1,0 +1,40 @@
+import { Component, inject } from "@angular/core";
+import { ChatService } from "../chat.service";
+import { Router } from "@angular/router";
+import { LoginService } from "../login.service";
+
+@Component({
+  selector: "app-users",
+  imports: [],
+  template: `
+    <header>
+      Chat Application
+      <button class="logOutButton" (click)="logout()">Log Out</button>
+    </header>
+    <span class="title"> Conversations list </span>
+
+    @for (conversation of this.chatService.getConversationsList(); track conversation.id) {
+    <div>
+      <button class="setUserToTalkButton" (click)="selectConversation(conversation.id)">
+        {{ conversation.name }}
+      </button>
+    </div>
+     }
+  `,
+  styleUrls: ["./users.css"],
+})
+export class Users {
+  chatService = inject(ChatService);
+  loginService = inject(LoginService);
+  router      = inject(Router);
+
+  selectConversation(conversationID: number) {
+    // Go to the chat page with the selected user
+    this.router.navigate(["home/" + conversationID]);
+  }
+
+  logout() {
+    this.router.navigate(['login/']);
+    this.loginService.logout();
+  }
+}
