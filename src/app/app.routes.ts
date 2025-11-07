@@ -9,6 +9,6 @@ import { Users } from "./users/users";
 export const routes: Routes = [
   { path: "", redirectTo: "/login", pathMatch: "full" }, // Default redirection
   { path: "login", component: Login },
-  { path: "home/:id/:contactName", component: Chat },
-  { path: "home/:id", component: Users },
+  { path: "home/:conversationID", component: Chat },
+  { path: "home", component: Users },
 ];

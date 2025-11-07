@@ -1,8 +1,8 @@
-import { Component, input, OnInit, inject } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ChatService } from "../chat.service";
-import { Message } from "../message.model";
+import { LoginService } from "../login.service"
 
 @Component({
   selector: "app-chat",
@@ -13,21 +13,21 @@ import { Message } from "../message.model";
         Go back to menu
       </button>
     </header>
-    <h2>You are chatting with {{ userWeChatWith }}</h2>
+    <h2>You are chatting with {{ this.chatService.getConversationName(conversationID) }}</h2>
 
     <section class = "chatDashboard">
 
       <article class="chatContent">
-      <!-- TODO le service aura besoin de l'id de conversation (ou de user si pas de conv de groupe) pour trouver les messages -->
-      @for(message of chatService.prevMessages(); track message.id)
+
+      @for(message of this.chatService.getConversationByID(conversationID)?.messages; track message.id)
       {
-        @if(message.speaker==0)
+        @if(message.sender == loginService.getCurrentUserID())
         {
-          <div class = "user0Speaking"> {{message.content}} </div>
+          <div class = "IAmSpeaking"> {{message.content}} </div>
         } 
         @else 
         {
-          <div class = "user1Speaking"> {{message.content}} </div>
+          <div class = "OthersAreSpeaking"> {{message.content}} </div>
         }
       }
       </article>
@@ -49,28 +49,25 @@ import { Message } from "../message.model";
 })
 export class Chat implements OnInit {
   chatService     = inject(ChatService);
+  loginService    = inject(LoginService);
   router          = inject(Router);
-  userWeChatWith  = "";
+  conversationID  = 0;
   messageToSend   = "";
-  currentUser     = "";
-
 
   sendMessage() {
-      // TODO meme si ca envoie pas au serveur, faire une fause methode du service
+    this.chatService.sendMessage(this.messageToSend, this.conversationID);
     this.messageToSend = "";
   }
 
   gobackToMenu() {
-    this.router.navigate(["home/" + this.currentUser]);
+    this.router.navigate(["home"]);
   }
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private readonly route: ActivatedRoute) {}
 
   ngOnInit() {
-    // Is it necessary to subscribe here ? The value is not susceptible to change while this route is active
     this.route.params.subscribe((params) => {
-      this.currentUser    = params["id"];
-      this.userWeChatWith = params["contactName"];
+      this.conversationID = Number(params["conversationID"]);
     });
   }
 }

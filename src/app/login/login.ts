@@ -1,7 +1,8 @@
-import { Component, input, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ChatService } from "../chat.service";
 import { Router } from "@angular/router";
+import { LoginService } from "../login.service";
 
 @Component({
   selector: "app-login",
@@ -30,21 +31,16 @@ import { Router } from "@angular/router";
 })
 export class Login {
   chatService     = inject(ChatService);
+  loginService    = inject(LoginService);
   router          = inject(Router);
   usernameEntry   = "";
-  // unused code
-  userList        = input<string[]>();
+  passwordEntry   = "";
 
   isEntryError = false;
 
   CheckUsernameEntry() {
-      // 1. chat service: pas pour login
-      // 2. intention de `usersList().includes(this.usernameEntry)`, c'est login(username) -> true/false
-      //    -> cette login doit être faire dans un service, la page ne doit jamais savoir plus que "est ce que ce login me login"
-      // avant: if (this.chatService.usersList().includes(this.usernameEntry)) {
-      // apres
-      if (this.chatService.login(this.usernameEntry)) {
-      this.router.navigate(["home/" + this.usernameEntry]);
+    if (this.loginService.login(this.usernameEntry, this.passwordEntry)) {
+      this.router.navigate(["home/"]);
     } else {
       this.isEntryError = true;
     }

@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { ChatService } from "../chat.service";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
+import { LoginService } from "../login.service";
 
 @Component({
   selector: "app-users",
@@ -8,44 +9,32 @@ import { ActivatedRoute, Router } from "@angular/router";
   template: `
     <header>
       Chat Application
-      <button class="logOutButton" (click)="logOut()">Log Out</button>
+      <button class="logOutButton" (click)="logout()">Log Out</button>
     </header>
-    <span class="title"> Users list </span>
+    <span class="title"> Conversations list </span>
 
-    <!-- TODO ici, le service doit te renvoyer la liste de TES contacts (en fonction du current user) -->
-    @for (user of chatService.usersList(); track user) {
-        <!-- TODO donc typiquement: ce if, ca dégage (tu n'es pas dans tes contacts) -->
-        @if (user != currentUser) {
+    @for (conversation of this.chatService.getConversationsList(); track conversation.id) {
     <div>
-      <button class="setUserToTalkButton" (click)="selectUserToChatWith(user)">
-        {{ user }}
+      <button class="setUserToTalkButton" (click)="selectConversation(conversation.id)">
+        {{ conversation.name }}
       </button>
     </div>
-    } }
+     }
   `,
   styleUrls: ["./users.css"],
 })
-export class Users implements OnInit {
+export class Users {
   chatService = inject(ChatService);
+  loginService = inject(LoginService);
   router      = inject(Router);
-  currentUser = "";
 
-  constructor(private route: ActivatedRoute) {}
-
-    // TODO ca dégage parce que c'est dans le service
-  ngOnInit() {
-    // Is it necessary to subscribe here ? The value is not susceptible to change while this route is active
-    this.route.params.subscribe((params) => {
-      this.currentUser = params["id"];
-    });
-  }
-
-  logOut() {
-      // TODO creer une methode logout dans le service (qui vire currentUser, et plus tard qui appelle le serveur)
-    this.router.navigate(["/login"]);
-  }
-  selectUserToChatWith(selectedUser: string) {
+  selectConversation(conversationID: number) {
     // Go to the chat page with the selected user
-    this.router.navigate(["home/" + this.currentUser + "/" + selectedUser]);
+    this.router.navigate(["home/" + conversationID]);
+  }
+
+  logout() {
+    this.router.navigate(['login/']);
+    this.loginService.logout();
   }
 }
