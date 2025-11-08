@@ -1,1 +1,7 @@
-rootProject.name = "chat-server"
+rootProject.name = "chat"
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}
