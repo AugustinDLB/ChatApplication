@@ -1,10 +1,10 @@
-package com.example.demo;
+package fr.augustin.chat_server;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoApplicationTests {
+class ChatServerApplicationTests {
 
 	@Test
 	void contextLoads() {
