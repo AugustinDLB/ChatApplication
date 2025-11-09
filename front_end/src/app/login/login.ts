@@ -17,7 +17,39 @@ import { LoginService } from "../login.service";
           type="text"
           name="username"
           placeholder="Write your username here"
-          [(ngModel)]="usernameEntry"
+          [(ngModel)]="loginUsernameEntry"
+        />
+      </label>
+      <label>
+        Password
+        <input
+          type="text"
+          name="password"
+          placeholder="Write your password here"
+          [(ngModel)]="loginPasswordEntry"
+        />
+      </label>
+      <button>Submit</button>
+    </form>
+
+    <h1>Register</h1>
+    <form (ngSubmit)="Register()">
+      <label>
+        Username
+        <input
+          type="text"
+          name="username"
+          placeholder="Write your username here"
+          [(ngModel)]="registerUsernameEntry"
+        />
+      </label>
+      <label>
+        Password
+        <input
+          type="text"
+          name="password"
+          placeholder="Write your password here"
+          [(ngModel)]="registerPasswordEntry"
         />
       </label>
       <button>Submit</button>
@@ -33,17 +65,26 @@ export class Login {
   chatService     = inject(ChatService);
   loginService    = inject(LoginService);
   router          = inject(Router);
-  usernameEntry   = "";
-  passwordEntry   = "";
+  loginUsernameEntry   = "";
+  loginPasswordEntry   = "";
+  registerPasswordEntry   = "";
+  registerUsernameEntry   = "";
+
 
   isEntryError = false;
 
-  CheckUsernameEntry() {
-    if (this.loginService.login(this.usernameEntry, this.passwordEntry)) {
+  async CheckUsernameEntry() {
+    const isConnected = await this.loginService.login(this.loginUsernameEntry, this.loginPasswordEntry);
+    if (isConnected) {
       this.router.navigate(["home/"]);
     } else {
       this.isEntryError = true;
     }
-    this.usernameEntry = "";
+    this.loginUsernameEntry = "";
+    this.loginPasswordEntry = "";
+  }
+
+  Register() {
+    this.loginService.register(this.registerUsernameEntry,this.registerPasswordEntry);
   }
 }

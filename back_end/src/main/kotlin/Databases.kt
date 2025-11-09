@@ -23,7 +23,7 @@ fun Application.configureDatabases() {
         post("/cities") {
             val city = call.receive<City>()
             val id = cityService.create(city)
-            call.respond(HttpStatusCode.Created, id)
+            call.respond(HttpStatusCode.OK, id)
         }
     
         // Read city
@@ -61,10 +61,20 @@ fun Application.configureDatabases() {
     val userService = UserService(database)
     routing {
         // Create user
-        post("/users") {
+        post("/users/register") {
             val user = call.receive<ExposedUser>()
             val id = userService.create(user)
             call.respond(HttpStatusCode.Created, id)
+        }
+
+        post("/users/login") {
+            val user = call.receive<ExposedUser>()
+            val id: Int? = userService.read(user);
+            if(id == null) {
+                call.respond(HttpStatusCode.InternalServerError);
+            } else {
+                call.respond(HttpStatusCode.OK, id)
+            }
         }
         
         // Read user
