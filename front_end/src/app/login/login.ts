@@ -15,7 +15,7 @@ import { LoginService } from "../login.service";
         Username
         <input
           type="text"
-          name="username"
+          name="loginUsername"
           placeholder="Write your username here"
           [(ngModel)]="loginUsernameEntry"
         />
@@ -24,7 +24,7 @@ import { LoginService } from "../login.service";
         Password
         <input
           type="text"
-          name="password"
+          name="loginPassword"
           placeholder="Write your password here"
           [(ngModel)]="loginPasswordEntry"
         />
@@ -38,7 +38,7 @@ import { LoginService } from "../login.service";
         Username
         <input
           type="text"
-          name="username"
+          name="RegisterUsername"
           placeholder="Write your username here"
           [(ngModel)]="registerUsernameEntry"
         />
@@ -47,7 +47,7 @@ import { LoginService } from "../login.service";
         Password
         <input
           type="text"
-          name="password"
+          name="RegisterPassword"
           placeholder="Write your password here"
           [(ngModel)]="registerPasswordEntry"
         />
@@ -56,13 +56,16 @@ import { LoginService } from "../login.service";
     </form>
 
     @if(isEntryError){
-    <div class="error">User non existing</div>
+        <div class="error">Invalid user name or password</div>
+    }
+    
+    @if(isUserAlreadyExists){
+        <div class="error">User already exists</div>
     }
   `,
   styleUrls: ["login.css"],
 })
 export class Login {
-  chatService     = inject(ChatService);
   loginService    = inject(LoginService);
   router          = inject(Router);
   loginUsernameEntry   = "";
@@ -72,11 +75,11 @@ export class Login {
 
 
   isEntryError = false;
-
+  isUserAlreadyExists   = false;
   async CheckUsernameEntry() {
     const isConnected = await this.loginService.login(this.loginUsernameEntry, this.loginPasswordEntry);
     if (isConnected) {
-      this.router.navigate(["home/"]);
+      await this.router.navigate(["home/"]);
     } else {
       this.isEntryError = true;
     }
@@ -84,7 +87,12 @@ export class Login {
     this.loginPasswordEntry = "";
   }
 
-  Register() {
-    this.loginService.register(this.registerUsernameEntry,this.registerPasswordEntry);
+  async Register() {
+      const isRegistered= await this.loginService.register(this.registerUsernameEntry,this.registerPasswordEntry);
+      if(!isRegistered) {
+          this.isUserAlreadyExists = true;
+      }
+      this.registerUsernameEntry = "";
+      this.registerPasswordEntry = "";
   }
 }

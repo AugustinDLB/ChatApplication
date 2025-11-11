@@ -49,6 +49,15 @@ class UserService(database: Database) {
                 ?.get(Users.id)
     }
 
+    suspend fun read(name: String): Int? {
+        return dbQuery {
+            Users.selectAll()
+                .where { Users.name eq name }
+                .singleOrNull()
+                ?.get(Users.id)
+        }
+    }
+
     suspend fun update(id: Int, user: ExposedUser) {
         dbQuery {
             Users.update({ Users.id eq id }) {

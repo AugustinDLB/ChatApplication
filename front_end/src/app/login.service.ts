@@ -12,26 +12,27 @@ export class LoginService {
     public readonly currentUser = this._currentUser.asReadonly();
 
     async login(name: string, password: string): Promise<boolean> {
-    try {
-        const data = await firstValueFrom(
-            this.httpClient.post('/users/login', { name, password })
-        );
-        console.log('Reponse:', data);
-        return true;
-    } catch (err) {
-        console.log('Erreur:', err);
-        return false;
+        try {
+            const data = await firstValueFrom(
+                this.httpClient.post('/users/login', { name, password })
+            );
+            return true;
+        } catch (err) {
+            return false;
+        }
     }
-}
         
-    register(name: string, password: string): boolean {
-        this.httpClient.post('users/register', {name, password})
-        .subscribe({
-            next: data => console.log('Reponse:', data),
-            error: err => console.log('Erreur:', err)
-        })
-        return true
+    async register(name: string, password: string): Promise<boolean> {
+        try {
+            const data = await firstValueFrom(
+                this.httpClient.post('users/register', { name, password })
+            );
+            return true;
+        } catch (err) {
+            return false;
+        }
     }
+
     logout() {
         this._currentUser.set({id:-1, name: "", firstName: ""});
         return false;
