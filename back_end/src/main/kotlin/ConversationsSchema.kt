@@ -1,17 +1,16 @@
-package fr.augustin
-
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.Table
+import kotlin.time.Instant
 
+@OptIn(kotlin.time.ExperimentalTime::class)
 @Serializable
-data class Message(val from: String, val to: String, val content: String)
+data class Message(val id: Int, val sender: Int, val content: String, val time: Instant)
 
 class MessageService(database: Database) {
-}
-
-export interface Message {
-    id:       number;
-    sender:   number;
-    content:  string;
-    time:     Date;
+    object Messages : Table() {
+        val id = integer("id").autoIncrement()
+        val sender = integer("id")
+        val content = varchar(name = "content", length = 50)
+    }
 }
