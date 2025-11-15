@@ -13,7 +13,7 @@ import { LoginService } from "../login.service";
     </header>
     <span class="title"> Conversations list </span>
 
-    @for (conversation of this.chatService.getConversationsList(); track conversation.id) {
+    @for (conversation of this.chatService.conversationsList(); track conversation.id) {
     <div>
       <button class="setUserToTalkButton" (click)="selectConversation(conversation.id)">
         {{ conversation.name }}

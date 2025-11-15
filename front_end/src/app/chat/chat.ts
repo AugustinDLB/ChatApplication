@@ -3,6 +3,7 @@ import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ChatService } from "../chat.service";
 import { LoginService } from "../login.service"
+import {KeyValuePipe} from "@angular/common";
 
 @Component({
   selector: "app-chat",
@@ -19,16 +20,12 @@ import { LoginService } from "../login.service"
 
       <article class="chatContent">
 
-      @for(message of this.chatService.getConversationByID(conversationID)?.messages; track message.id)
-      {
-        @if(message.sender == loginService.getCurrentUserID())
-        {
-          <div class = "IAmSpeaking"> {{message.content}} </div>
-        } 
-        @else 
-        {
-          <div class = "OthersAreSpeaking"> {{message.content}} </div>
-        }
+      @for (message of chatService.getMessagesOfConv(conversationID); track message.id) {
+          @if (message.sender == loginService.getCurrentUserID()) {
+              <div class="IAmSpeaking">{{ message.content }}</div>
+          } @else {
+              <div class="OthersAreSpeaking">{{ message.content }}</div>
+          }
       }
       </article>
       
@@ -45,7 +42,7 @@ import { LoginService } from "../login.service"
     </section>
   `,
   styleUrls: ["./chat.css"],
-  imports: [FormsModule],
+    imports: [FormsModule, KeyValuePipe],
 })
 export class Chat implements OnInit {
   chatService     = inject(ChatService);

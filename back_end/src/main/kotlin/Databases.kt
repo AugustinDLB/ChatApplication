@@ -9,11 +9,19 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
 import java.sql.Connection
 import java.sql.DriverManager
 import org.jetbrains.exposed.sql.*
 
+@Serializable
+data class RegisterRequest(
+    val name: String,
+    val password: String
+)
+
 fun Application.configureDatabases() {
+
     val dbConnection: Connection = connectToPostgres(embedded = true)
 
     val database = Database.connect(
@@ -23,12 +31,13 @@ fun Application.configureDatabases() {
         password = "",
     )
     val userService = UserService(database)
+    val MessageService = MessageService(database)
     routing {
         // Create user
         post("/users/register") {
-            val user = call.receive<ExposedUser>()
+            val user = call.receive<RegisterRequest>()
             if(userService.read(user.name) == null) {
-                val id = userService.create(user)
+                val id = userService.create(user.name,user.password)
                 call.respond(HttpStatusCode.Created, id)
             } else {
                 call.respond(HttpStatusCode.Conflict)
@@ -36,25 +45,25 @@ fun Application.configureDatabases() {
         }
 
         post("/users/login") {
-            val user = call.receive<ExposedUser>()
-            val id: Int? = userService.read(user);
-            if(id == null) {
+            val user = call.receive<RegisterRequest>()
+            val response: ExposedUser? = userService.read(user.name, user.password);
+            if(response == null) {
                 call.respond(HttpStatusCode.Unauthorized);
             } else {
-                call.respond(HttpStatusCode.OK, id)
+                call.respond(HttpStatusCode.OK, response.id)
             }
         }
         
         // Read user
-        get("/users/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            val user = userService.read(id)
-            if (user != null) {
-                call.respond(HttpStatusCode.OK, user)
-            } else {
-                call.respond(HttpStatusCode.NotFound)
-            }
-        }
+//        get("/users/{id}") {
+//            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
+//            val user = userService.read(id)
+//            if (user != null) {
+//                call.respond(HttpStatusCode.OK, user)
+//            } else {
+//                call.respond(HttpStatusCode.NotFound)
+//            }
+//        }
         
         // Update user
         put("/users/{id}") {

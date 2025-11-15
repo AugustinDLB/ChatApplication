@@ -1,22 +1,21 @@
 package fr.augustin
 
+import ConversationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
-data class ExposedUser(val id: Int, val name: String, val password: String)
+data class ExposedUser(val id: Int, val name: String)
 
 class UserService(database: Database) {
-    object Users : Table() {
-        val id = integer("id").autoIncrement()
+    object Users : IntIdTable() {
         val name = varchar("name", length = 50)
         val password = varchar("password", length = 50)
-
-        override val primaryKey = PrimaryKey(id)
     }
 
     init {
@@ -25,28 +24,31 @@ class UserService(database: Database) {
         }
     }
 
-    suspend fun create(user: ExposedUser): Int = dbQuery {
+    suspend fun create(userName: String, userPassword: String): Int = dbQuery {
         Users.insert {
-            it[name] = user.name
-            it[password] = user.password
-        }[Users.id]
+            it[name] = userName
+            it[password] = userPassword
+        }[Users.id].value
     }
 
-    suspend fun read(id: Int): ExposedUser? {
-        return dbQuery {
-            Users.selectAll()
-                .where { Users.id eq id }
-                .map { ExposedUser(it[Users.name], it[Users.password]) }
-                .singleOrNull()
-        }
-    }
+//    suspend fun read(id: Int): ExposedUser? {
+//
+//
+//        return dbQuery {
+//            Users.selectAll()
+//                .where { Users.id eq id }
+//                .map { ExposedUser(it[Users.id].value, it[Users.name]) }
+//                .singleOrNull()
+//        }
+//    }
 
-    suspend fun read(user: ExposedUser): Int? = dbQuery {
+    suspend fun read(name: String, password: String): ExposedUser? = dbQuery {
         Users
             .selectAll()
-            .where { (Users.name eq user.name) and (Users.password eq user.password) }
+            .where { (Users.name eq name) and (Users.password eq password) }
+            .map { ExposedUser( it[Users.id].value, it[Users.name]) }
             .singleOrNull()
-            ?.get(Users.id)
+
     }
 
     suspend fun read(name: String): Int? {
@@ -55,6 +57,7 @@ class UserService(database: Database) {
                 .where { Users.name eq name }
                 .singleOrNull()
                 ?.get(Users.id)
+                ?.value
         }
     }
 

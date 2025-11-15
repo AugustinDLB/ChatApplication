@@ -1,44 +1,57 @@
-import { Injectable, signal, inject } from "@angular/core";
-import { HttpClient } from "@angular/common/http"
-import { LoginService } from "./login.service";
+import {Injectable, signal, inject} from "@angular/core";
+import {HttpClient} from "@angular/common/http"
+import {LoginService} from "./login.service";
 
-import { User } from "./user.model"
-import { Conversation } from "./conversation.model"
+import {User, UserList} from "./user.model"
+import {Conversation, ConversationList} from "./conversation.model"
+import {Message, MessageList} from "./message.model"
 
 @Injectable({
-  providedIn: "root",
+    providedIn: "root",
 })
 export class ChatService {
-  httpClient     = inject(HttpClient);
-  loginService   = inject(LoginService);
+    httpClient = inject(HttpClient);
+    loginService = inject(LoginService);
 
-  userWeChatWith = signal<User>({id:-1, name: "", firstName: ""}); // The current user we chat with
+    userWeChatWith = signal<User>({name: "", firstName: ""}); // The current user we chat with
 
-  private readonly conversationsList = signal<Conversation[]>([
-    {id:0 , participants: [0, 1], name: "Test conversation", messages: [ {id:1 , sender:1, content: "Angular, sans aucun doute.", time: new Date(2002, 8, 2)}]},
-    {id:1 , participants: [0, 1], name: "Test conversation2", messages: [ {id:1 , sender:1, content: "Angular, sans aucun doute.", time: new Date(2002, 8, 2)}]},
+    conversationsList = signal<ConversationList>(new ConversationList());
 
-  ])
+    constructor() {
+        this.conversationsList().set(0, new Conversation([0, 1], "Conversation 1", {}));
+        this.conversationsList().set(1, new Conversation([0, 1], "Conversation 2", {}));
+    }
 
-  getConversationsList(): Conversation[] {
-    return this.conversationsList();
-  }
+    usersList = signal<UserList>({
+        0: {
+            name: "User1",
+            firstName: "John"
+        },
+        1: {
+            name: "User2",
+            firstName: "Jane"
+        }
+    });
 
-  getConversationByID(convID: number): Conversation | undefined {
-    return this.conversationsList().find(conv => conv.id === convID);
-  }
+    sendMessage(newMessage: string, conversationID: number) {
+        // TODO : send message to server
+        this.conversationsList().addMessage(conversationID, {
+            id: 0,
+            sender: this.loginService.getCurrentUserID(),
+            content: newMessage,
+            time: new Date()
+        });
+    }
 
-  getConversationName(convID: number): string | undefined {
-    return this.getConversationByID(convID)?.name;
-  }
+    getMessagesOfConv(conversationID: number): Message[] {
+        return this.conversationsList()[conversationID].messagesArray;
+    }
 
-  sendMessage(newMessage: string, conversationID: number) {
-    this.conversationsList.update(convs =>
-    convs.map(conv =>
-      conv.id === conversationID
-        ? { ...conv, messages: [...conv.messages, {id: 3, sender: this.loginService.getCurrentUserID(), content: newMessage, time: new Date(2002, 8, 2)}] }
-        : conv
-    )
-  );
-  }
+    get convArray(): Conversation[] {
+        return Object.values(this.conversationsList());
+    }
+    addConversation(id: number, name: string, members: number[]) {
+        this.conversationsList().set(id, new Conversation(members, name, {}));
+    }
+
 }
