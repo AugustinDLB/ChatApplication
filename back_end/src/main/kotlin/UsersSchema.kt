@@ -1,6 +1,5 @@
 package fr.augustin
 
-import ConversationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
@@ -42,13 +41,12 @@ class UserService(database: Database) {
 //        }
 //    }
 
-    suspend fun read(name: String, password: String): ExposedUser? = dbQuery {
+    suspend fun read(userName: String, userPassword: String): ExposedUser? = dbQuery {
         Users
             .selectAll()
-            .where { (Users.name eq name) and (Users.password eq password) }
+            .where { (Users.name eq userName) and (Users.password eq userPassword) }
             .map { ExposedUser( it[Users.id].value, it[Users.name]) }
             .singleOrNull()
-
     }
 
     suspend fun read(name: String): Int? {
@@ -65,7 +63,6 @@ class UserService(database: Database) {
         dbQuery {
             Users.update({ Users.id eq id }) {
                 it[name] = user.name
-                it[password] = user.password
             }
         }
     }

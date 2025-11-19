@@ -3,19 +3,16 @@ import { ChatService } from "../chat.service";
 import { Router } from "@angular/router";
 import { LoginService } from "../login.service";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import { Conversation, ConversationList } from "../conversation.model";
-import {KeyValuePipe} from "@angular/common";
 @Component({
     selector: "app-users",
     imports: [
         FormsModule,
         ReactiveFormsModule,
-        KeyValuePipe,
     ],
     template: `
     <header>
       Chat Application
-      <button class="logOutButton" (click)="logout()">Log Out</button>
+      <button class="logOutButton" (click)="goBackToMenu()">Log Out</button>
     </header>
     <span class="title"> Add a new conversation </span>
 
@@ -54,4 +51,7 @@ export class Users {
     MemberEntry = ""
     MembersList = []
 
+    goBackToMenu(){
+        this.router.navigate(["home"]);
+    }
 }

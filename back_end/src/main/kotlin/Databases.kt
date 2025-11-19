@@ -16,8 +16,17 @@ import org.jetbrains.exposed.sql.*
 
 @Serializable
 data class RegisterRequest(
-    val name: String,
-    val password: String
+    val name: String, val password: String
+)
+
+@Serializable
+data class LoginResponse(
+    val user: ExposedUser, val conversations: List<ExposedConversation>
+)
+
+@Serializable
+data class CreateConversationRequest(
+    val name: String, val members: List<Int>
 )
 
 fun Application.configureDatabases() {
@@ -31,13 +40,13 @@ fun Application.configureDatabases() {
         password = "",
     )
     val userService = UserService(database)
-    val MessageService = MessageService(database)
+    val conversationService = ConversationService(database)
     routing {
         // Create user
         post("/users/register") {
             val user = call.receive<RegisterRequest>()
-            if(userService.read(user.name) == null) {
-                val id = userService.create(user.name,user.password)
+            if (userService.read(user.name) == null) {
+                val id = userService.create(user.name, user.password)
                 call.respond(HttpStatusCode.Created, id)
             } else {
                 call.respond(HttpStatusCode.Conflict)
@@ -46,41 +55,32 @@ fun Application.configureDatabases() {
 
         post("/users/login") {
             val user = call.receive<RegisterRequest>()
-            val response: ExposedUser? = userService.read(user.name, user.password);
-            if(response == null) {
+            val result: ExposedUser? = userService.read(user.name, user.password);
+            if (result == null) {
                 call.respond(HttpStatusCode.Unauthorized);
             } else {
-                call.respond(HttpStatusCode.OK, response.id)
+                val conversations = conversationService.getConversationsOfUser(result.id)
+                val response = LoginResponse(ExposedUser(result.id, result.name), conversations);
+                call.respond(HttpStatusCode.OK, response)
             }
         }
-        
-        // Read user
-//        get("/users/{id}") {
-//            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-//            val user = userService.read(id)
-//            if (user != null) {
-//                call.respond(HttpStatusCode.OK, user)
-//            } else {
-//                call.respond(HttpStatusCode.NotFound)
-//            }
-//        }
-        
-        // Update user
-        put("/users/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            val user = call.receive<ExposedUser>()
-            userService.update(id, user)
-            call.respond(HttpStatusCode.OK)
-        }
-        
+
         // Delete user
         delete("/users/{id}") {
             val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
             userService.delete(id)
             call.respond(HttpStatusCode.OK)
         }
+
+        post("/conversations/register/") {
+            val request = call.receive<CreateConversationRequest>()
+            val conversationId = conversationService.create(request.members, request.name)
+            val response = conversationService.getConversation(conversationId)
+            call.respond(HttpStatusCode.OK, response)
+        }
     }
 }
+
 /**
  * Makes a connection to a Postgres database.
  *
