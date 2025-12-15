@@ -10,11 +10,6 @@ header {
   align-items: center;
 }
 
-h2 {
-  border-bottom: 1px solid #ccc;
-  padding-left: 1em;
-}
-
 form {
   display: flex;
   justify-content: center;

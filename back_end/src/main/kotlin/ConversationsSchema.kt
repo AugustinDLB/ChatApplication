@@ -2,9 +2,7 @@ package fr.augustin
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -14,25 +12,34 @@ data class ExposedMessage(val id: Int, val sender: Int, val content: String, val
 
 @Serializable
 data class ExposedConversation(
-    val id: Int, val members: List<Int>, val name: String, val messages: List<ExposedMessage>
+    val id: Int, val members: List<Int>, val name: String?, val messages: List<ExposedMessage>
 )
 
 class ConversationService(database: Database) {
 
-    object Conversations : IntIdTable() {
+    object Conversations : Table() {
+        val id = integer("id").autoIncrement()
         val name = varchar(name = "name", length = 50)
+
+        override val primaryKey = PrimaryKey(id)
     }
 
-    object Messages : IntIdTable() {
-        val conversation_id = reference("conversation_id", ConversationService.Conversations)
+    object Messages : Table() {
+        val id = integer("id").autoIncrement()
+        val conversation_id = integer("conversation_id")
         val sender = integer("sender")
         val content = varchar(name = "content", length = 50)
         val time = long(name = "time")
+
+        override val primaryKey = PrimaryKey(id)
     }
 
-    object ConversationMembers : IntIdTable() {
-        val conversation_id = reference("conversation_id", ConversationService.Conversations)
-        val user_id = reference("user_id", UserService.Users)
+    object ConversationMembers : Table() {
+        val id = integer("id").autoIncrement()
+        val conversation_id = integer("conversation_id")
+        val user_id = integer("user_id")
+
+        override val primaryKey = PrimaryKey(id)
     }
 
     init {
@@ -57,12 +64,12 @@ class ConversationService(database: Database) {
                 it[user_id] = memberId
             }
         }
-        conversationId.value
+        conversationId
     }
 
     suspend fun addMessage(conversationId: Int, inputSender: Int, inputContent: String, inputTime: Long) = dbQuery {
         Messages.insert {
-            it[conversation_id] = EntityID(conversationId, Conversations)
+            it[conversation_id] = conversationId
             it[sender] = inputSender
             it[content] = inputContent
             it[time] = inputTime
@@ -88,33 +95,45 @@ class ConversationService(database: Database) {
 
     suspend fun getConversationMessages(convId: Int): List<ExposedMessage> {
         return dbQuery {
-            Messages.select(Messages.conversation_id eq convId).map {
-                ExposedMessage(
-                    it[Messages.id].value,
-                    it[Messages.sender],
-                    it[Messages.content],
-                    it[Messages.time]
-                )
-            }
+            Messages
+                .selectAll()
+                .where { Messages.conversation_id eq convId }
+                .map {
+                    ExposedMessage(
+                        it[Messages.id],
+                        it[Messages.sender],
+                        it[Messages.content],
+                        it[Messages.time]
+                    )
+                }
         }
     }
 
     suspend fun getConversationMembers(conversationId: Int): List<Int> {
         return dbQuery {
-            ConversationMembers.select(ConversationMembers.conversation_id eq conversationId)
-                .map { it[ConversationMembers.user_id].value }
+            ConversationMembers.selectAll()
+                .where(ConversationMembers.conversation_id eq conversationId)
+                .map { it[ConversationMembers.user_id] }
         }
     }
 
     suspend fun getConversationsIdsOfUser(memberId: Int): List<Int> {
         return dbQuery {
-            ConversationMembers.select(ConversationMembers.user_id eq memberId)
-                .map { it[ConversationMembers.conversation_id].value }
+            ConversationMembers
+                .selectAll()
+                .where { ConversationMembers.user_id eq memberId }
+                .map { it[ConversationMembers.conversation_id] }
         }
     }
 
-    suspend fun getConversationName(conversationId: Int): String = dbQuery {
-        Conversations.select(Conversations.id eq conversationId).single()[Conversations.name]
+    suspend fun getConversationName(conversationId: Int): String? {
+        return dbQuery {
+            Conversations
+                .selectAll()
+                .where { Conversations.id eq conversationId }
+                .singleOrNull()
+                ?.get(Conversations.name)
+        }
     }
 
     suspend fun getConversationsOfUser(userId: Int): List<ExposedConversation> {
@@ -138,7 +157,7 @@ class ConversationService(database: Database) {
         val members = getConversationMembers(conversationId)
         val name = getConversationName(conversationId)
 
-         return ExposedConversation(conversationId, members, name, messages)
+        return ExposedConversation(conversationId, members, name, messages)
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }

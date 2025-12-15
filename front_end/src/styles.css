@@ -15,3 +15,22 @@ header {
     padding: 1em;
     font-size: clamp(1.2em, 4vw, 2em);
 }
+
+.header-button {
+    background-color: white;
+    color: black;
+    border: solid 1px black;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 8px;
+}
+
+.page-title {
+    display: block;
+    width: 100%;
+    border: solid 1px var(--primary-color);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}

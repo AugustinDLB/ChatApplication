@@ -1,18 +1,14 @@
 package fr.augustin
 
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.http.content.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.sql.Database
 import java.sql.Connection
 import java.sql.DriverManager
-import org.jetbrains.exposed.sql.*
 
 @Serializable
 data class RegisterRequest(
@@ -21,7 +17,7 @@ data class RegisterRequest(
 
 @Serializable
 data class LoginResponse(
-    val user: ExposedUser, val conversations: List<ExposedConversation>
+    val user: ExposedUser, val conversations: List<ExposedConversation>, val usersList: List<ExposedUser>
 )
 
 @Serializable
@@ -39,6 +35,7 @@ fun Application.configureDatabases() {
         driver = "org.h2.Driver",
         password = "",
     )
+
     val userService = UserService(database)
     val conversationService = ConversationService(database)
     routing {
@@ -60,9 +57,14 @@ fun Application.configureDatabases() {
                 call.respond(HttpStatusCode.Unauthorized);
             } else {
                 val conversations = conversationService.getConversationsOfUser(result.id)
-                val response = LoginResponse(ExposedUser(result.id, result.name), conversations);
+                val usersList = userService.getUsersList()
+                val response = LoginResponse(ExposedUser(result.id, result.name), conversations, usersList);
                 call.respond(HttpStatusCode.OK, response)
             }
+        }
+
+        post("/users/logout") {
+            call.respond(HttpStatusCode.OK)
         }
 
         // Delete user

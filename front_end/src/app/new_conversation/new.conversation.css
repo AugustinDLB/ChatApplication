@@ -1,0 +1,10 @@
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+label {
+    display: block;
+    margin-bottom: 12px;
+}

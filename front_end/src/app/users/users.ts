@@ -1,5 +1,4 @@
 import {Component, inject} from "@angular/core";
-import {ChatService} from "../chat.service";
 import {Router} from "@angular/router";
 import {LoginService} from "../login.service";
 import {SessionService} from "../session.service";
@@ -10,11 +9,14 @@ import {SessionService} from "../session.service";
     template: `
         <header>
             Chat Application
-            <button class="logOutButton" (click)="logout()">Log Out</button>
+            <span class="header-actions">
+               <button class="header-button" (click)="createNewConversation()">New Conversation</button>
+               <button class="header-button" (click)="requestLogout()">Log Out</button>
+            </span>
         </header>
-        <span class="title"> Conversations list </span>
+        <span class="page-title"> Conversations list </span>
 
-        @for (conversation of this.sessionService.conversations()!; track conversation.id) {
+        @for (conversation of this.sessionService.conversations(); track conversation.id) {
             <div>
                 <button class="setUserToTalkButton" (click)="selectConversation(conversation.id)">
                     {{ conversation.name }}
@@ -24,6 +26,7 @@ import {SessionService} from "../session.service";
     `,
     styleUrls: ["./users.css"],
 })
+
 export class Users {
     loginService = inject(LoginService);
     router = inject(Router);
@@ -34,7 +37,11 @@ export class Users {
         this.router.navigate(["home/" + conversationID]);
     }
 
-    logout() {
+    createNewConversation() {
+        this.router.navigate(['create_new_conversation/'])
+    }
+
+    requestLogout() {
         this.router.navigate(['login/']);
         this.loginService.logout( this.sessionService.id()!);
     }

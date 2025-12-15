@@ -1,66 +1,66 @@
-import { Component, inject } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { Router } from "@angular/router";
-import { LoginService } from "../login.service";
+import {Component, inject} from "@angular/core";
+import {FormsModule} from "@angular/forms";
+import {Router} from "@angular/router";
+import {LoginService} from "../login.service";
 
 @Component({
   selector: "app-login",
   imports: [FormsModule],
   template: `
-    <header>Chat Application</header>
-    <h1>Login</h1>
-    <form (ngSubmit)="CheckUsernameEntry()">
-      <label>
-        Username
-        <input
-          type="text"
-          name="loginUsername"
-          placeholder="Write your username here"
-          [(ngModel)]="loginUsernameEntry"
-        />
-      </label>
-      <label>
-        Password
-        <input
-          type="text"
-          name="loginPassword"
-          placeholder="Write your password here"
-          [(ngModel)]="loginPasswordEntry"
-        />
-      </label>
-      <button>Submit</button>
-    </form>
+      <header>Chat Application</header>
+      <span class="page-title">Login</span>
+      <form (ngSubmit)="requestLogin()">
+          <label>
+              Username
+              <input
+                      type="text"
+                      name="loginUsername"
+                      placeholder="Write your username here"
+                      [(ngModel)]="loginUsernameEntry"
+              />
+          </label>
+          <label>
+              Password
+              <input
+                      type="text"
+                      name="loginPassword"
+                      placeholder="Write your password here"
+                      [(ngModel)]="loginPasswordEntry"
+              />
+          </label>
+          <button>Submit</button>
+      </form>
 
-    <h1>Register</h1>
-    <form (ngSubmit)="Register()">
-      <label>
-        Username
-        <input
-          type="text"
-          name="RegisterUsername"
-          placeholder="Write your username here"
-          [(ngModel)]="registerUsernameEntry"
-        />
-      </label>
-      <label>
-        Password
-        <input
-          type="text"
-          name="RegisterPassword"
-          placeholder="Write your password here"
-          [(ngModel)]="registerPasswordEntry"
-        />
-      </label>
-      <button>Submit</button>
-    </form>
+      <span class="page-title">Register</span>
+      <form (ngSubmit)="Register()">
+          <label>
+              Username
+              <input
+                      type="text"
+                      name="RegisterUsername"
+                      placeholder="Write your username here"
+                      [(ngModel)]="registerUsernameEntry"
+              />
+          </label>
+          <label>
+              Password
+              <input
+                      type="text"
+                      name="RegisterPassword"
+                      placeholder="Write your password here"
+                      [(ngModel)]="registerPasswordEntry"
+              />
+          </label>
+          <button>Submit</button>
+      </form>
 
-    @if(isEntryError){
-        <div class="error">Invalid user name or password</div>
-    }
-    
-    @if(isUserAlreadyExists){
-        <div class="error">User already exists</div>
-    }
+      @if (isEntryError) {
+          <div class="error">Invalid user name or password</div>
+      }
+
+      @if (isUserAlreadyExists) {
+          <div class="error">User already exists</div>
+      }
   `,
   styleUrls: ["login.css"],
 })
@@ -75,7 +75,8 @@ export class Login {
 
   isEntryError = false;
   isUserAlreadyExists   = false;
-  async CheckUsernameEntry() {
+
+    async requestLogin() {
     const isConnected = await this.loginService.login(this.loginUsernameEntry, this.loginPasswordEntry);
     if (isConnected) {
       await this.router.navigate(["home/"]);

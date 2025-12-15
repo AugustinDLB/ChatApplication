@@ -3,7 +3,6 @@ package fr.augustin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -12,9 +11,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 data class ExposedUser(val id: Int, val name: String)
 
 class UserService(database: Database) {
-    object Users : IntIdTable() {
+    object Users : Table() {
+        val id = integer("id").autoIncrement()
         val name = varchar("name", length = 50)
         val password = varchar("password", length = 50)
+
+        override val primaryKey = PrimaryKey(id)
     }
 
     init {
@@ -27,25 +29,14 @@ class UserService(database: Database) {
         Users.insert {
             it[name] = userName
             it[password] = userPassword
-        }[Users.id].value
+        }[Users.id]
     }
-
-//    suspend fun read(id: Int): ExposedUser? {
-//
-//
-//        return dbQuery {
-//            Users.selectAll()
-//                .where { Users.id eq id }
-//                .map { ExposedUser(it[Users.id].value, it[Users.name]) }
-//                .singleOrNull()
-//        }
-//    }
 
     suspend fun read(userName: String, userPassword: String): ExposedUser? = dbQuery {
         Users
             .selectAll()
             .where { (Users.name eq userName) and (Users.password eq userPassword) }
-            .map { ExposedUser( it[Users.id].value, it[Users.name]) }
+            .map { ExposedUser(it[Users.id], it[Users.name]) }
             .singleOrNull()
     }
 
@@ -55,7 +46,14 @@ class UserService(database: Database) {
                 .where { Users.name eq name }
                 .singleOrNull()
                 ?.get(Users.id)
-                ?.value
+        }
+    }
+
+    suspend fun getUsersList(): List<ExposedUser> {
+        return dbQuery {
+            Users
+                .selectAll()
+                .map { ExposedUser(it[Users.id], it[Users.name]) }
         }
     }
 

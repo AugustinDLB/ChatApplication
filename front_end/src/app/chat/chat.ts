@@ -1,8 +1,7 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, inject, OnInit} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ChatService} from "../chat.service";
-import {LoginService} from "../login.service"
 import {SessionService} from "../session.service";
 
 @Component({
@@ -14,7 +13,7 @@ import {SessionService} from "../session.service";
                 Go back to menu
             </button>
         </header>
-        <h2>You are chatting with {{ this.sessionService.conversations()![conversationID].name }}</h2>
+        <span class="page-title">You are chatting with {{ this.sessionService.conversations()[conversationID].name }}</span>
 
         <section class="chatDashboard">
 
