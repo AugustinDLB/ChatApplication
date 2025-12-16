@@ -49,6 +49,14 @@ class UserService(database: Database) {
         }
     }
 
+    suspend fun readName(id: Int): String {
+        return dbQuery {
+            Users.selectAll()
+                .where(Users.id eq id)
+                .single()[Users.name]
+        }
+    }
+
     suspend fun getUsersList(): List<ExposedUser> {
         return dbQuery {
             Users

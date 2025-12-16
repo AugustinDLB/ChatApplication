@@ -9,7 +9,7 @@ import {NewConversation} from "./new_conversation/new.conversation";
 export const routes: Routes = [
   { path: '', redirectTo: "/login", pathMatch: "full" }, // Default redirection
   { path: "login", component: Login },
-  { path: "home/:conversationID", component: Chat },
+    {path: "home/:conversationId", component: Chat},
     {path: "create_new_conversation", component: NewConversation},
     {path: "home", component: Users}
 ];

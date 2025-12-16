@@ -25,12 +25,19 @@ data class CreateConversationRequest(
     val name: String, val members: List<Int>
 )
 
+@Serializable
+data class MessagePostRequest(
+    val conversationId: Int, val sender: Int, val content: String
+)
+
+
 fun Application.configureDatabases() {
 
     val dbConnection: Connection = connectToPostgres(embedded = true)
 
     val database = Database.connect(
-        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+//        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+        url = "jdbc:h2:file:./data/test;AUTO_SERVER=TRUE",
         user = "root",
         driver = "org.h2.Driver",
         password = "",
@@ -79,6 +86,12 @@ fun Application.configureDatabases() {
             val conversationId = conversationService.create(request.members, request.name)
             val response = conversationService.getConversation(conversationId)
             call.respond(HttpStatusCode.OK, response)
+        }
+
+        post("/conversations/send/") {
+            val request = call.receive<MessagePostRequest>()
+            val message = conversationService.addMessage(request.conversationId, request.sender, request.content)
+            call.respond(HttpStatusCode.OK, message)
         }
     }
 }

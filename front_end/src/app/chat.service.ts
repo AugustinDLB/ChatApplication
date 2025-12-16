@@ -2,7 +2,7 @@ import {inject, Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http"
 import {LoginService} from "./login.service";
 import {SessionService} from "./session.service";
-import {Conversation} from "./models/conversation.model"
+import {ConversationImpl} from "./models/conversation.model"
 import {Message} from "./models/message.model"
 import {firstValueFrom} from "rxjs";
 
@@ -21,14 +21,27 @@ export class ChatService {
     loginService = inject(LoginService);
     sessionService = inject(SessionService);
 
-    sendMessage(newMessage: string, conversationID: number) {
-        // TODO : send message to server
-        // this.conversationsList().addMessage(conversationID, {
-        //     id: 0,
-        //     sender: this.loginService.currentUserId(),
-        //     content: newMessage,
-        //     time: new Date()
-        // });
+    async sendMessage(content: string, conversationId: number) {
+        try {
+            const sender = this.sessionService.id();
+            const data = await firstValueFrom(
+                this.httpClient.post<Message>('/conversations/send/', {
+                    conversationId: conversationId,
+                    sender: sender,
+                    content: content
+                })
+            )
+            const convIndex = this.sessionService.conversations().findIndex(x => x.id === conversationId);
+            this.sessionService.conversations()[convIndex].addMessage({
+                id: data.id,
+                sender: data.sender,
+                content: data.content,
+                time: data.time
+            });
+            return true;
+        } catch (err) {
+            return false;
+        }
     }
 
     async createConversation(name: string, members: number[]): Promise<number> {
@@ -36,7 +49,7 @@ export class ChatService {
             const data = await firstValueFrom(
                 this.httpClient.post<CreateConversationResponse>('/conversations/register/', {name, members})
             );
-            this.sessionService.conversations()!.push(<Conversation>({
+            this.sessionService.conversations()!.push(<ConversationImpl>({
                 id: data.id,
                 members: data.members,
                 name: data.name,

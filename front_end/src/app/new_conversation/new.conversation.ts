@@ -3,7 +3,6 @@ import {ChatService} from "../chat.service";
 import {Router} from "@angular/router";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {SessionService} from "../session.service";
-import {HttpClient} from "@angular/common/http";
 
 @Component({
     selector: "app-users",
@@ -59,7 +58,6 @@ import {HttpClient} from "@angular/common/http";
 export class NewConversation {
     router = inject(Router)
     sessionService = inject(SessionService)
-    httpClient = inject(HttpClient)
     chatService = inject(ChatService)
     conversationNameEntry = "";
     memberEntry = ""
@@ -71,9 +69,9 @@ export class NewConversation {
 
     async CreateConversation() {
         this.addMemberToList(this.sessionService.id()) // Add the current user to the list of members
-        const conversationID = await this.chatService.createConversation(this.conversationNameEntry, this.memberList);
-        if (conversationID >= 0) {
-            await this.router.navigate(["home/" + conversationID]);
+        const conversationId = await this.chatService.createConversation(this.conversationNameEntry, this.memberList);
+        if (conversationId >= 0) {
+            await this.router.navigate(["home/" + conversationId]);
         }
         this.memberList = []
     }

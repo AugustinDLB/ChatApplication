@@ -53,6 +53,7 @@ class ConversationService(database: Database) {
     suspend fun create(inputMembers: List<Int>, inputName: String): Int = dbQuery {
 
         // add conversation to the conversations object
+
         val conversationId = Conversations.insert {
             it[name] = inputName
         } get Conversations.id
@@ -67,13 +68,22 @@ class ConversationService(database: Database) {
         conversationId
     }
 
-    suspend fun addMessage(conversationId: Int, inputSender: Int, inputContent: String, inputTime: Long) = dbQuery {
+    suspend fun addMessage(conversationId: Int, inputSender: Int, inputContent: String): ExposedMessage = dbQuery {
+        val now = System.currentTimeMillis()
+
         Messages.insert {
             it[conversation_id] = conversationId
             it[sender] = inputSender
             it[content] = inputContent
-            it[time] = inputTime
+            it[time] = now
         }
+
+        ExposedMessage(
+            id = conversationId,
+            sender = inputSender,
+            content = inputContent,
+            time = now
+        )
     }
 
     suspend fun addMember(conversationId: Int, userId: Int) {

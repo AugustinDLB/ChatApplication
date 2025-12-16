@@ -13,13 +13,14 @@ import {SessionService} from "../session.service";
                 Go back to menu
             </button>
         </header>
-        <span class="page-title">You are chatting with {{ this.sessionService.conversations()[conversationID].name }}</span>
-
+            
+        <span class="page-title">{{ this.sessionService.getConversationName(conversationId) }}</span>
+        
         <section class="chatDashboard">
 
             <article class="chatContent">
 
-                @for (message of sessionService.getConversationMessages(conversationID); track message.id) {
+                @for (message of sessionService.getConversationMessages(conversationId); track message.id) {
                     @if (message.sender == sessionService.id()!) {
                         <div class="IAmSpeaking">{{ message.content }}</div>
                     } @else {
@@ -31,12 +32,12 @@ import {SessionService} from "../session.service";
             <form (ngSubmit)="sendMessage()">
                 <input
                         type="text"
-                        name="messageToSend"
-                        [(ngModel)]="messageToSend"
+                        name="messageToSendEntry"
                         placeholder="Write your message here"
-                        required
+                        [(ngModel)]="messageToSend"
                 />
                 <button>Send</button>
+               
             </form>
         </section>
     `,
@@ -47,11 +48,11 @@ export class Chat implements OnInit {
     chatService = inject(ChatService);
     sessionService = inject(SessionService);
     router = inject(Router);
-    conversationID = -1;
+    conversationId = -1;
     messageToSend = "";
 
-    sendMessage() {
-        this.chatService.sendMessage(this.messageToSend, this.conversationID);
+    async sendMessage() {
+        await this.chatService.sendMessage(this.messageToSend, this.conversationId);
         this.messageToSend = "";
     }
 
@@ -64,7 +65,7 @@ export class Chat implements OnInit {
 
     ngOnInit() {
         this.route.params.subscribe((params) => {
-            this.conversationID = Number(params["conversationID"]);
+            this.conversationId = Number(params["conversationId"]);
         });
     }
 }
